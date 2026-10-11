@@ -1,0 +1,1 @@
+[out:json][timeout:90];(nwr[shop=mall](12.82,77.44,13.16,77.80);nwr[amenity=cinema](12.82,77.44,13.16,77.80);nwr[brand~"Starbucks",i](12.82,77.44,13.16,77.80);nwr[aeroway=aerodrome](13.17,77.65,13.24,77.75););out center;

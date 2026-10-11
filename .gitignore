@@ -1,0 +1,8 @@
+node_modules/
+_site/
+.DS_Store
+__pycache__/
+*.pyc
+*-preview.png
+.env
+.env.*

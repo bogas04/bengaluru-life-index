@@ -1,0 +1,1 @@
+[out:json][timeout:120];relation[route=subway](12.82,77.44,13.16,77.80);out geom;

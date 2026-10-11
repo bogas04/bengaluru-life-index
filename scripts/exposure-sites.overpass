@@ -1,0 +1,3 @@
+[out:json][timeout:180][bbox:12.78,77.38,13.21,77.86];
+(nwr[landuse=industrial];nwr[man_made=works];nwr[industrial];nwr[amenity=waste_transfer_station];nwr[landuse=landfill];nwr[industrial=composting];nwr["recycling:organic"=yes];nwr[name~"compost|KCDC",i];nwr[office];);
+out center;

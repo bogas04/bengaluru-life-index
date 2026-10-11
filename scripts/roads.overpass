@@ -1,0 +1,2 @@
+[out:json][timeout:180][bbox:12.82,77.44,13.16,77.80];
+way[highway~"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|service|living_street)(_link)?$"];out geom;

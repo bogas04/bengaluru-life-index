@@ -1,0 +1,7 @@
+{
+  "name": "bengaluru-life-index-prototype",
+  "private": true,
+  "scripts": {
+    "dev": "npx --yes serve . --listen 4173"
+  }
+}
