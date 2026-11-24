@@ -42,8 +42,6 @@ export function setupQuestionnaire({ createIndex, hasSharedConfiguration }) {
     const priorities = { green: { green_cover: 25, park: 15 }, quiet: { noise: 30 }, schools: { school_count: 30 }, health: { hospital: 25, pharmacy: 10 }, leisure: { cafe_count: 15, cinema_count: 15, mall_count: 10 } };
     for (const choice of answers.getAll('priorities')) for (const [key, value] of Object.entries(priorities[choice] || {})) weights[key] = (weights[key] || 0) + value;
     const budget = Number(answers.get('budget'));
-    // Starting assumption, shown in the guide and editable in the index controls.
-    const other = Math.round(budget * 0.3);
     if (!budget) delete weights.cost_of_living;
     else weights.cost_of_living = Math.max(30, weights.cost_of_living || 0);
     const total = Object.values(weights).reduce((sum, weight) => sum + weight, 0);
@@ -52,7 +50,7 @@ export function setupQuestionnaire({ createIndex, hasSharedConfiguration }) {
       name: 'My Bengaluru life index',
       description: 'A starting mix based on my lifestyle, travel and selected priorities. Every weight is editable.',
       weights,
-      costSettings: { bhk: Number(answers.get('bhk')), monthlyBudget: budget || 30000, nonRent: budget ? other : 10000 }
+      costSettings: { housingType: answers.get('housingType') || 'all', rentSource: answers.get('housingType') && answers.get('housingType') !== 'all' ? 'listings' : 'tenant', furnishing: 'all', bhk: Number(answers.get('bhk')), rentBudget: budget || 20000 }
     });
     close();
   };

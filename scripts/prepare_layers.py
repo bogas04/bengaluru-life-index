@@ -4,6 +4,7 @@ The saved query is scripts/amenities.overpass; request it with out center.
 """
 import json, sys, collections, datetime
 from pathlib import Path
+from coffee_chains import coffee_chain
 from shapely.geometry import shape, mapping, Point
 from shapely.ops import unary_union
 from shapely import make_valid
@@ -30,7 +31,7 @@ for e in raw['elements']:
   else:category='rail'
  elif t.get('highway')=='bus_stop' or (t.get('public_transport')=='platform' and t.get('bus')=='yes'):category='bus_stop'
  elif t.get('shop')=='mall':category='mall'
- elif 'starbucks' in (t.get('brand','')+' '+t.get('name','')).lower():category='starbucks'
+ elif coffee_chain(t):category='coffee_chain'
  elif t.get('leisure')=='park':category='park'
  elif t.get('natural')=='water':category='lake'
  if not category:continue
@@ -40,7 +41,7 @@ for e in raw['elements']:
   counts[wi][category]+=1
   if category=='park' and t.get('access') in ('yes','permissive','designated'):counts[wi]['public_park']+=1
   if category=='lake' and t.get('water')=='lake':counts[wi]['lake_only']+=1
- points.append({'id':f"{e['type']}/{e['id']}",'lat':lat,'lon':lon,'category':category,'name':t.get('name',t.get('name:en','')),'ward':wards[wi]['properties']['id2'] if wi is not None else None,'tags':{k:v for k,v in t.items() if k in ('access','water','brand','shop','operator','network','wheelchair','opening_hours','website','station','railway','amenity','highway','bus','public_transport')}})
+ points.append({'id':f"{e['type']}/{e['id']}",'lat':lat,'lon':lon,'category':category,'name':t.get('name',t.get('name:en','')),'ward':wards[wi]['properties']['id2'] if wi is not None else None,'tags':{k:v for k,v in t.items() if k in ('access','water','brand','name:en','shop','operator','network','wheelchair','opening_hours','website','station','railway','amenity','highway','bus','public_transport')}})
 metrics=[]
 for f,g,c in zip(wards,geoms,counts):
  p=g.representative_point();metrics.append({'id':f['properties']['id2'],'center':[p.y,p.x],'counts':dict(c)})

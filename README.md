@@ -21,17 +21,17 @@ The primary audience is concerned residents, resident associations and groups do
 | Amenity layers | Transport, education, healthcare, emergency services, parks, lakes, leisure and industrial/waste sites |
 | Transit display | Metro line colors and mapped track paths; distinct metro, bus and rail symbols |
 | Ward scores | Individual metrics or a custom weighted index, on a red-to-green 0–1 scale |
-| Index controls | Co-located layer visibility, metric selection, weights, direction, credits and source links |
-| Guided setup | Skippable questionnaire for lifestyle, optional total budget, travel preference and priorities |
+| Index controls | Map-top visibility strip; grouped metric selection, weights, direction, credits and source links |
+| Guided setup | Skippable questionnaire for lifestyle, optional rent budget, travel preference and priorities |
 | Templates | Four editable starting configurations; definitions in [presets.js](presets.js) |
 | Destination search | Local search across named OSM buildings, landmarks, businesses, schools and localities; manual map selection also available |
 | Ward inspection | One compact hover preview; click for a detailed panel with raw values, component scores and weights |
 | Rankings | Top five matching wards; click to highlight and frame a ward |
-| Factor navigation | Hover or click the selected-factor count, then jump to a factor’s sidebar controls |
+| Factor navigation | Hover or click the selected-factor count, then open a factor’s fine-tuning controls |
 | Save and share | Named configurations, local drafts, share links, JSON export and import |
 | Documentation | [Vision page](vision/index.html) and [source catalogue](sources/index.html) |
 
-Show/Hide buttons control map visibility independently of index inclusion. Editing a weight selects that factor, activates the weighted view and restores ward visibility. Unused amenity cards are muted. Selected factors with zero weight appear in the factor count but do not contribute to the score.
+A thin, horizontally scrollable layer strip above the map controls visibility independently of index inclusion. All amenity layers and the destination pin start hidden; choose any chip to show it. The Office / school chip lets you choose a destination, then hide/show its pin; Search destination lets you change it. Editing a weight selects that factor, activates the weighted view and restores ward visibility. Unused amenity cards are muted. Selected factors with zero weight appear in the factor count but do not contribute to the score.
 
 Hover previews show up to three factors with the highest positive weights. Clicking a ward opens the full breakdown in a persistent panel that replaces the leaderboard; closing it restores the rankings.
 
@@ -74,7 +74,7 @@ Scores express the selected preferences. They are not official livability, noise
 | Industrial/waste distance | Farther preferred by default; distance / threshold, capped at 1 |
 | Road-pressure noise proxy | Clipped road length × estimated carriageway width × class factor / ward area; score decreases relative to the highest city pressure |
 | Within-ward essentials | Presence of healthcare, pharmacy, park and bus-stop groups, divided by four |
-| Living cost | Nearby locality rent + non-rent expense assumption; `max(0, 1 − cost / (2 × monthly budget))` |
+| Rent affordability | Selected median rent; `max(0, 1 − rent / (2 × rent budget))` |
 | Green cover | Mean raster display alpha inside each ward, normalized to the largest covered-ward mean |
 | Reverse preference | `1 − base score` |
 | Custom index | `sum(weight × available score) / sum(available selected weights)` |
@@ -85,17 +85,17 @@ Proximity thresholds: metro 3 km, bus stop 1 km, hospital 5 km, park 2 km, pharm
 
 Distances use mapped points or geometry centres, not walking routes, entrances, terminal access or site perimeters. Objects crossing ward boundaries can be assigned by their centres. Duplicated point/area representations may inflate counts. Count normalization always uses the entire city, so filtering does not change a metric’s scale.
 
-Lake counts require `water=lake`. Explicit public-park counts require public/permissive access tags; other parks remain available separately. Starbucks has its own category rather than contributing to generic café counts. Counts do not establish suitability, opening hours, quality or capacity.
+Lake counts require `water=lake`. Explicit public-park counts require public/permissive access tags; other parks remain available separately. High-end coffee stores is a bespoke chain selection: Starbucks, Third Wave Coffee, Blue Tokai, Café Coffee Day and Chaayos. These mapped objects are counted separately from generic cafés; the label does not verify price or quality. Counts do not establish suitability, opening hours, quality or capacity.
 
 ### Missing data and weighting
 
-Unselected, zero-weight and unavailable factors do not contribute. Available weights are renormalized; if none remain, the result is unavailable. **Exception:** when living cost has a positive custom weight, a ward without rent coverage has no total score, so missing affordability cannot improve its rank.
+Unselected, zero-weight and unavailable factors do not contribute. Available weights are renormalized; if none remain, the result is unavailable. **Rent coverage:** missing rent produces a visibly marked partial score from other factors by default. With cost included, rankings use rent-covered wards when any match; otherwise rankings are labelled budget unassessed. An optional “Require rent data” setting restores strict exclusion. Individual cost coloring always shows missing rent as unavailable.
 
 Weights are relative. Increasing the only active factor’s weight does not change its normalized score. Rankings follow ward/corporation filters, omit unavailable totals and break ties by ward name. A high weight changes contribution, not the underlying raw value.
 
 ### Costs, greenery and noise
 
-Rent is matched to the nearest eligible OSM locality centre within 2 km. Current coverage is 67 wards for 1 BHK, 115 for 2 BHK and 7 for 3 BHK. Sarjapur Road is omitted because it has no unambiguous locality centre. The guide asks only for total monthly budget including rent; it starts other expenses at 30% of that budget, explicitly as an editable assumption. Templates have their own spending scenarios. Deposits and moving costs are excluded; these settings are not income predictions by age.
+Rent is matched to the nearest eligible OSM locality centre within 2 km. Current coverage is 67 wards for 1 BHK, 115 for 2 BHK and 7 for 3 BHK. Sarjapur Road is omitted because it has no unambiguous locality centre. Home & budget has a ₹10,000–₹1,00,000 monthly rent slider and 1/2/3 BHK selector. Other household expenses are not scored. The guide asks for an optional rent budget; templates provide editable rent preferences. Deposits and moving costs are excluded; these settings are not income predictions by age.
 
 Green-cover summaries sample pixel centres with cosine-latitude weights and require at least 95% raster extent coverage. Currently 366 wards have scores and three are unavailable. Transparent pixels count as zero display signal; cloud/no-data masks and original processing thresholds are not supplied. This does not measure public access, footpath shade or canopy percentage.
 
@@ -121,7 +121,9 @@ The next direction is to make evidence useful for action:
 5. **Track action:** retain official responses and revisit outcomes against a baseline.
 6. **Work backward from 2041–2046:** define measurable city outcomes for the next 15–20 years, then trace milestones, investments and near-term interventions.
 
-Planned layer groups: **civic & essentials**, **entertainment & leisure**, **work & daily journeys**, **environment & comfort**, **housing & affordability**, and **streets & safety**. Grouped controls are not implemented yet.
+Controls are grouped into **Civic services**, **Daily access**, **Leisure**, **Home & budget**, and **Quiet & green**. Each overall slider distributes a total weight among the group's selected factors, preserving their relative weights; a group without selections starts with curated defaults. **Fine tune** opens individual factors, credits and preferences in a desktop side panel or a mobile modal. Every slider keeps the desktop map visible for immediate color feedback.
+
+On mobile, the map is the primary surface. Bottom navigation opens one sheet at a time for priorities, rankings, the index or search; tapping a ward opens its details. Hover previews are desktop-only. Desktop surfaces use explicit stacking: map, sidebar, results, then hover previews and factor popovers. Desktop fine tuning occupies the sidebar footprint without blocking the map; mobile modals appear above the map.
 
 Route questions remain longer-term goals: public transport plus pleasant walking to a destination; affordable localities with a commute to work; and rain conditions along a scooter route. They require connected networks, service timings and dated, verified street observations.
 
@@ -132,8 +134,10 @@ Route questions remain longer-term goals: public transport plus pleasant walking
 ```text
 index.html                 Map interface and styles
 app.js                     Layers, scoring, search, configuration and ward inspection
-presets.js                 Editable starter weights and spending scenarios
+presets.js                 Editable starter weights and rent budgets
 questionnaire.js           Guided starting-index flow
+interface.js / interface.css Group controls, responsive sheets and surface hierarchy
+rental-data.js             Validated listing import and ward rent summaries
 data/                      Bundled source snapshots and derived ward summaries
 scripts/                   Saved Overpass queries and Python preparation scripts
 sources/index.html         Source catalogue and methods
@@ -145,7 +149,7 @@ vision/index.html          Audience, civic purpose and long-term direction
 
 Preparation runs offline; the browser only consumes generated files. Use an isolated Python environment with Shapely; the vegetation script also requires Pillow and NumPy. Scripts contain snapshot-specific filenames and metadata that must be updated when changing editions.
 
-The base amenity preparation overwrites `amenities.json`. Run exposure and metro enrichment again afterward:
+The base amenity preparation overwrites `amenities.json`. Run coffee-chain classification, exposure and metro enrichment again afterward:
 
 ```sh
 python scripts/prepare_ward_boundaries.py
@@ -155,6 +159,7 @@ curl --fail --get --data-urlencode data@scripts/amenities.overpass \
 curl --fail --get --data-urlencode data@scripts/extra-amenities.overpass \
   https://overpass-api.de/api/interpreter/ -o /tmp/bengaluru-extra.json
 python scripts/prepare_layers.py /tmp/bengaluru-osm.json /tmp/bengaluru-extra.json
+python scripts/prepare_coffee_chains.py
 
 curl --fail --get --data-urlencode data@scripts/exposure-sites.overpass \
   https://overpass-api.de/api/interpreter/ -o /tmp/bengaluru-sites.json
@@ -179,6 +184,32 @@ The [Pages workflow](.github/workflows/pages.yml) packages site files, documenta
 
 Relative links support both localhost and the `/bengaluru-life-index/` Pages path. Processing scripts and local preview screenshots are excluded from the deployed artifact.
 
+## Working on the prototype
+
+Agent entry point: [AGENTS.md](AGENTS.md). Focused [developer docs](docs/README.md) cover architecture, design decisions, scoring/data contracts and common change recipes. Read the relevant topic instead of reconstructing context from the entire codebase.
+
 ## Contributing
 
 Useful contributions include reviewing ward assignments, documenting missing services, supplying permitted datasets, improving metric definitions and building the civic evidence workflow. Include source, licence, observation date, geography and limitations with every data contribution. Keep measured observations distinct from inferred conditions, and preserve uncertainty in the interface.
+
+## Housing type and asking-rent datasets
+
+The rental controls now distinguish **gated society**, **standalone / builder housing**, and **all housing types**, with optional furnishing filters. The guide includes housing preference. The existing tenant dataset cannot answer a housing-type-specific query, so specific filters use imported asking rents and leave uncovered wards unavailable. No guessed gated-society premium is applied.
+
+A local CSV import supports a permitted property export or reviewed listing dataset with these headers:
+
+```csv
+property_id,latitude,longitude,bhk,housing_type,rent_inr,maintenance_inr,furnishing,observed_on,source_url
+```
+
+- `housing_type`: `gated`, `standalone`, `unknown`. Furnishing: `unfurnished`, `semi-furnished`, `furnished`, `unknown`. Unknown values are excluded from specific filters.
+- Use exact reviewed coordinates and a canonical property ID across sources; duplicated IDs/URLs are excluded. Only 1–3 BHK records within GBA are used.
+- Observations must be within 90 days at import. Maintenance must be separately stated: blank is unknown and excluded, zero means explicitly no additional charge.
+- Ward medians require at least five matching unique records and include rent + maintenance. The breakdown shows sample size and the middle 50% range. This threshold is a prototype quality gate, not evidence of a representative sample.
+- Imports stay in the current tab. Share links save filters but not the dataset; re-import after reload or when reproducing a shared index.
+
+[Rental source research](sources/index.html#rental-listings) documents Housing.com examples and their limitations. No Housing.com live feed or citywide database has been integrated yet. New asking rents and existing tenant-paid rents are separate bases; portal locality labels require location review before ward assignment.
+
+### Optional rent extrapolation
+
+Home & budget includes inferred rents by default for unrestricted reported tenant-rent preferences. Nearby matching localities within 2 km are retained; other wards use up to three nearest same-BHK medians, weighted by inverse squared distance (500 m floor) and rounded to ₹500. This gives all 369 wards a proxy for each home size, with nearby/inferred counts and source details. Disable the option for nearby-only coverage. Long-distance estimates are marked; 3 BHK has only two source localities and is especially rough. No extrapolation applies to gated/furnishing-specific preferences or imported asking rents. This does not add observations or validate current market prices.
